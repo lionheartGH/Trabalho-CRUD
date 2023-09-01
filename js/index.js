@@ -11,6 +11,7 @@ let doorBt = document.querySelector('.bi-door-open')
 let saveBt = document.getElementById("save-bt")
 let cancelBt = document.getElementById("cancel-bt")
 let avatar = document.querySelector('.avatar')
+let numberForm = document.querySelector('#number')
 
 avatar.src = JSON.parse(getAuthInfo('user')).foto
 
@@ -22,6 +23,27 @@ logoutBt.addEventListener('mouseover',() => {
 
 logoutBt.addEventListener('mouseout',() => {
     doorBt.style.color='var(--bs-nav-link-color)';
+})
+
+numberForm.addEventListener('input', () => {
+    const number = numberForm.value.replace(/\D/g, '');     
+    if (number.length === 0 || number.length > 11) {
+        numberForm.value = '';
+    } else {
+        let formattedNumber = '';
+        if (number.length > 2) {
+            formattedNumber = '(' + number.slice(0, 2) + ') ';
+        } else {
+            formattedNumber = '(' + number.slice(0, number.length);
+        }
+        
+        if (number.length > 2 && number.length > 7) {
+            formattedNumber += number.slice(2, 7) + '-' + number.slice(7, 11);
+        } else if (number.length > 2) {
+            formattedNumber += number.slice(2, number.length);
+        }
+        numberForm.value = formattedNumber;
+    }
 })
 
 let formModal = {
@@ -83,7 +105,7 @@ function getModalClient(){
         name: formModal.name.value,
         shopping: formModal.shopping.value,
         email: formModal.email.value,
-        number: formModal.number.value,
+        number: formModal.number.value.replace(/\D/g, ''),
         dataCadastro: new Date()
     })
 }
