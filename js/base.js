@@ -2,7 +2,7 @@ const URL = `http://localhost:3400`
 
 function saveUser(user, token){
     localStorage.setItem('user', JSON.stringify(user))
-    localStorage.setItem('token', JSON.stringify(token))
+    localStorage.setItem('token', token)
 }
 
 function getAuthInfo(type){
