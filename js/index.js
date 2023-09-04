@@ -1,5 +1,6 @@
 let editMode = false;
 let clientList = [];
+let filteredList = {};
 
 let addBt = document.getElementById("add-bt")
 let table = document.querySelector('table>tbody');
@@ -12,21 +13,46 @@ let saveBt = document.getElementById("save-bt")
 let cancelBt = document.getElementById("cancel-bt")
 let avatar = document.querySelector('.avatar')
 let numberForm = document.querySelector('#number')
+let filter = document.getElementById('filter')
 
 avatar.src = JSON.parse(getAuthInfo('user')).foto
 
 loggedUser.textContent = JSON.parse(getAuthInfo('user')).email
 
-logoutBt.addEventListener('mouseover',() => {
-    doorBt.style.color='red';
+filter.addEventListener('input', () => {
+    let value = filter.value.toLowerCase()
+    if (value != "") {
+        handleSearch(clientList, value)
+        makeTable(filteredList)
+    } else {
+        makeTable(clientList)
+    }
 })
 
-logoutBt.addEventListener('mouseout',() => {
-    doorBt.style.color='var(--bs-nav-link-color)';
+function handleSearch(list, searchInput) {
+    const filteredData = list.filter(value => {
+        const searchStr = searchInput.toLowerCase().replace(/[ ().-]/g, '');
+        const idMatches = value.id.toString().includes(searchStr)
+        const nameMatches = value.name.toLowerCase().includes(searchStr);
+        const shoppingMatches = value.shopping.toString().includes(searchStr);
+        const emailMatches = value.email.toLowerCase().includes(searchStr);
+        const numberMatches = searchStr.length > 1 ? value.number.toString().includes(searchStr) : false
+
+        return idMatches || nameMatches || shoppingMatches || emailMatches || numberMatches;
+    })
+    filteredList = filteredData;
+}
+
+logoutBt.addEventListener('mouseover', () => {
+    doorBt.style.color = 'red';
+})
+
+logoutBt.addEventListener('mouseout', () => {
+    doorBt.style.color = 'var(--bs-nav-link-color)';
 })
 
 numberForm.addEventListener('input', () => {
-    const number = numberForm.value.replace(/\D/g, '');     
+    const number = numberForm.value.replace(/\D/g, '');
     if (number.length === 0 || number.length > 11) {
         numberForm.value = '';
     } else {
@@ -36,7 +62,7 @@ numberForm.addEventListener('input', () => {
         } else {
             formattedNumber = '(' + number.slice(0, number.length);
         }
-        
+
         if (number.length > 2 && number.length > 7) {
             formattedNumber += number.slice(2, 7) + '-' + number.slice(7, 11);
         } else if (number.length > 2) {
@@ -64,19 +90,19 @@ addBt.addEventListener('click', () => {
 
 saveBt.addEventListener('click', () => {
     let client = getModalClient();
-    if(Object.keys(client).every(i => {
-        if (!client[i]){
-            if (i !== 'id'){
+    if (Object.keys(client).every(i => {
+        if (!client[i]) {
+            if (i !== 'id') {
                 showError('missingCamp')
-            return false;
+                return false;
             }
         }
         showError()
         return true
-    })){
-        if (editMode){
+    })) {
+        if (editMode) {
             updateClientBE(client);
-        }else{
+        } else {
             addClientBE(client);
         }
     }
@@ -87,19 +113,19 @@ cancelBt.addEventListener('click', () => {
     modal.hide();
 })
 
-function showError(type){
+function showError(type) {
     const divError = document.querySelector(".error")
     const ErrorMsg = document.querySelector("#error-msg")
-    if(type === 'missingCamp'){
+    if (type === 'missingCamp') {
         ErrorMsg.textContent = "Por favor, preencha todos os campos."
         divError.style.display = 'flex'
         divError.style.height = '30px'
-    }else{
+    } else {
         divError.style.display = 'none'
     }
 }
 
-function getModalClient(){
+function getModalClient() {
     return new ClientM({
         id: formModal.id.value,
         name: formModal.name.value,
@@ -118,12 +144,12 @@ function getClients() {
             'Authorization': getAuthInfo('token')
         },
     })
-    .then(response => response.json())
-    .then(response =>{
-        clientList = response;
-        makeTable(response);
-    })
-    .catch()
+        .then(response => response.json())
+        .then(response => {
+            clientList = response;
+            makeTable(response);
+        })
+        .catch()
 }
 
 function editClient(id) {
@@ -135,7 +161,7 @@ function editClient(id) {
     modal.show();
 }
 
-function updateClientModal(client){
+function updateClientModal(client) {
     formModal.id.value = client.id
     formModal.name.value = client.name
     formModal.shopping.value = client.shopping
@@ -143,7 +169,7 @@ function updateClientModal(client){
     formModal.number.value = client.number
 }
 
-function cleanModal(client){
+function cleanModal(client) {
     formModal.id.value = ""
     formModal.name.value = ""
     formModal.shopping.value = ""
@@ -153,7 +179,7 @@ function cleanModal(client){
 
 function deleteClient(id) {
     let client = clientList.find(c => c.id == id);
-    if (confirm(`Deseja realmente deletar o cadastro do cliente ${client.name}?`)){
+    if (confirm(`Deseja realmente deletar o cadastro do cliente ${client.name}?`)) {
         deleteClientBE(client)
     }
 }
@@ -172,7 +198,7 @@ function createLine(client) {
     tdName.textContent = client.name;
     tdShopping.textContent = client.shopping;
     tdEmail.textContent = client.email;
-    tdNumber.textContent = "("+client.number.substr(0,2)+") "+client.number.substr(2,5)+'-'+client.number.substr(7);
+    tdNumber.textContent = "(" + client.number.substr(0, 2) + ") " + client.number.substr(2, 5) + '-' + client.number.substr(7);
     tdDataCadastro.textContent = new Date(client.dataCadastro).toLocaleDateString();
 
     tdButtons.innerHTML = `<button onclick="editClient(${client.id})" class="btn btn-outline-primary btn-sm edit-trash">
@@ -185,7 +211,7 @@ function createLine(client) {
                             <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
                             </svg>
                          </button>`;
-    
+
     tr.appendChild(tdID);
     tr.appendChild(tdName);
     tr.appendChild(tdShopping);
@@ -197,14 +223,14 @@ function createLine(client) {
     table.appendChild(tr);
 }
 
-function makeTable(clients){
+function makeTable(clients) {
     table.textContent = "";
     clients.forEach(client => {
         createLine(client)
     });
 }
 
-function addClientBE(client){
+function addClientBE(client) {
     client.dataCadastro = new Date().toISOString();
     fetch(`${URL}/clientes`, {
         method: "POST",
@@ -214,28 +240,28 @@ function addClientBE(client){
         },
         body: JSON.stringify(client)
     })
-    .then(response => response.json())
-    .then(response => {
-        let client = new ClientM(response);
-        clientList.push(client)
-        makeTable(clientList)
-        modal.hide();
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Cadastro salvo com sucesso!',
-            showConfirmButton: false,
-            timer: 1500,
-            customClass: 'alert-top',
-            imageHeight: 30,
-          })
-    })
-    .catch(error => {
-        console.log(error)
-    })
+        .then(response => response.json())
+        .then(response => {
+            let client = new ClientM(response);
+            clientList.push(client)
+            makeTable(clientList)
+            modal.hide();
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Cadastro salvo com sucesso!',
+                showConfirmButton: false,
+                timer: 1500,
+                customClass: 'alert-top',
+                imageHeight: 30,
+            })
+        })
+        .catch(error => {
+            console.log(error)
+        })
 }
 
-function updateClientBE(client){
+function updateClientBE(client) {
     fetch(`${URL}/clientes/${client.id}`, {
         method: "PUT",
         headers: {
@@ -244,26 +270,26 @@ function updateClientBE(client){
         },
         body: JSON.stringify(client)
     })
-    .then(response => response.json())
-    .then(() => {
-        updateClientOnTable(client, false)
-        modal.hide();
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Cadastro editado com sucesso!',
-            showConfirmButton: false,
-            timer: 1500,
-            customClass: 'alert-top',
-            imageHeight: 30,
-          })
-    })
-    .catch(error => {
-        console.log(error)
-    })
+        .then(response => response.json())
+        .then(() => {
+            updateClientOnTable(client, false)
+            modal.hide();
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Cadastro editado com sucesso!',
+                showConfirmButton: false,
+                timer: 1500,
+                customClass: 'alert-top',
+                imageHeight: 30,
+            })
+        })
+        .catch(error => {
+            console.log(error)
+        })
 }
 
-function deleteClientBE(client){
+function deleteClientBE(client) {
     fetch(`${URL}/clientes/${client.id}`, {
         method: "DELETE",
         headers: {
@@ -271,29 +297,29 @@ function deleteClientBE(client){
             'Authorization': getAuthInfo('token')
         }
     })
-    .then(response => response.json())
-    .then(() => {
-        updateClientOnTable(client, true)
-        Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Cadastro deletado com sucesso!',
-            showConfirmButton: false,
-            timer: 1500,
-            customClass: 'alert-top',
-            imageHeight: 30,
-          })
-    })
-    .catch(error => {
-        console.log(error)
-    })
+        .then(response => response.json())
+        .then(() => {
+            updateClientOnTable(client, true)
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Cadastro deletado com sucesso!',
+                showConfirmButton: false,
+                timer: 1500,
+                customClass: 'alert-top',
+                imageHeight: 30,
+            })
+        })
+        .catch(error => {
+            console.log(error)
+        })
 }
 
-function updateClientOnTable(client, removeClient){
+function updateClientOnTable(client, removeClient) {
     let i = clientList.findIndex((c) => c.id == client.id)
-    if(removeClient){
+    if (removeClient) {
         clientList.splice(i, 1)
-    }else{
+    } else {
         clientList.splice(i, 1, client)
     }
     makeTable(clientList);
