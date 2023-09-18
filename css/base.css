@@ -4,11 +4,12 @@
     --background-color: #1c1c1c;
     --main-color: #353535;
     --button-color: #4d4d4d;
+    --darkmode-shadow: 255,255,255;
+    --lightmode-shadow: 0,0,0;
 }
 
 html, body {
     width: 100%;
     height: 100%;
-    background-color: var(--background-color);
     font-family: 'Roboto', sans-serif;
 }

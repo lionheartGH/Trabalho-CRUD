@@ -4,7 +4,6 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background-color: var(--background-color);
     background-image: linear-gradient(to bottom right, var(--background-color) 50%, var(--main-color) 50%);
 }
 
