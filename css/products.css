@@ -90,7 +90,7 @@ button.btn.edit-trash {
     align-self: center;
     margin-top: 3px;
     margin-right: 5px;
-    border: solid 1px white;
+    border: solid 1px #6d6d6d;
 }
 
 .modal-content input {
@@ -183,4 +183,9 @@ button.btn.edit-trash {
     display: flex;
     align-items: center;
     margin-right: 20px;
+}
+
+.produtos {
+    background-color: #e7e7e7;
+    border-radius: 50px;
 }

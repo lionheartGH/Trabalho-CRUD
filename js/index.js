@@ -20,6 +20,8 @@ let sunBt = document.querySelector('.bi-sun')
 let topbar = document.querySelector('.topbar')
 let tableS = document.querySelector('table.table')
 let formControl = document.getElementsByClassName('form-control')
+let pageLabel = document.querySelector('.cadastros')
+
 
 avatar.src = JSON.parse(getAuthInfo('user')).foto
 
@@ -28,29 +30,7 @@ loggedUser.textContent = JSON.parse(getAuthInfo('user')).email
 moonBt.style.display = 'block'
 
 toggleDarkBt.addEventListener('click', () => {
-    if (document.documentElement.getAttribute('data-bs-theme') == 'dark') {
-        document.documentElement.setAttribute('data-bs-theme', 'light')
-        moonBt.style.display = 'block'
-        sunBt.style.display = 'none'
-        topbar.style.boxShadow = "0 0 3px 1px rgba(var(--lightmode-shadow), 0.8)"
-        tableS.style.boxShadow = "0 0 3px 1px rgba(var(--lightmode-shadow), 0.8)"
-        cancelBt.style.color = 'black'
-        for (const i of formControl){
-            i.style.backgroundColor = "#efefef"
-        }
-    }
-    else {
-        document.documentElement.setAttribute('data-bs-theme', 'dark')
-        sunBt.style.display = 'block'
-        moonBt.style.display = 'none'
-        topbar.style.boxShadow = "0 0 3px 1px rgba(var(--darkmode-shadow), 0.8)"
-        tableS.style.boxShadow = "0 0 3px 1px rgba(var(--darkmode-shadow), 0.8)"
-        cancelBt.style.color = 'white'
-        for (const i of formControl){
-            i.style.backgroundColor = "#3d3d3d"
-        }
-    }
-
+    toggleDark()
 })
 
 filter.addEventListener('input', () => {
@@ -62,6 +42,43 @@ filter.addEventListener('input', () => {
         makeTable(clientList)
     }
 })
+
+function verifyDark(){
+    if(getAuthInfo('dark') === 'true'){
+        toggleDark()
+    }
+}
+
+function toggleDark(){
+    if (document.documentElement.getAttribute('data-bs-theme') == 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'light')
+        moonBt.style.display = 'block'
+        sunBt.style.display = 'none'
+        topbar.style.boxShadow = "0 0 3px 1px rgba(var(--lightmode-shadow), 0.8)"
+        tableS.style.boxShadow = "0 0 3px 1px rgba(var(--lightmode-shadow), 0.8)"
+        cancelBt.style.color = 'black'
+        pageLabel.style.backgroundColor = '#e7e7e7'
+        avatar.style.borderColor = '#6d6d6d'
+        for (const i of formControl){
+            i.style.backgroundColor = "#efefef"
+        }
+        sessionStorage.setItem("dark", false)
+    }
+    else {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+        sunBt.style.display = 'block'
+        moonBt.style.display = 'none'
+        topbar.style.boxShadow = "0 0 3px 1px rgba(var(--darkmode-shadow), 0.8)"
+        tableS.style.boxShadow = "0 0 3px 1px rgba(var(--darkmode-shadow), 0.8)"
+        cancelBt.style.color = 'white'
+        pageLabel.style.backgroundColor = '#373d42'
+        avatar.style.borderColor = 'white'
+        for (const i of formControl){
+            i.style.backgroundColor = "#3d3d3d"
+        }
+        sessionStorage.setItem("dark", true)
+    }
+}
 
 function handleSearch(list, searchInput) {
     const filteredData = list.filter(value => {
@@ -359,4 +376,5 @@ function updateClientOnTable(client, removeClient) {
     makeTable(clientList);
 }
 
+verifyDark()
 getClients();
