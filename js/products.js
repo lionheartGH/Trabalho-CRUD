@@ -84,8 +84,8 @@ function handleSearch(list, searchInput) {
         const idMatches = value.id.toString().includes(searchStr)
         const nameMatches = value.nome.toLowerCase().includes(searchStr);
         const valueMatches = value.valor.toString().includes(searchStr);
-        const stockMatches = value.quantidadeEstoque.toLowerCase().includes(searchStr);
-        const obsMatches = value.obs.toLowerCase().includes(searchStr);
+        const stockMatches = value.quantidadeEstoque.toString().includes(searchStr);
+        const obsMatches = value.observacao.toLowerCase().includes(searchStr);
 
         return idMatches || nameMatches || valueMatches || stockMatches || obsMatches;
     })
@@ -226,7 +226,7 @@ function createLine(product) {
 
     tdID.textContent = product.id;
     tdName.textContent = product.nome;
-    tdValue.textContent = product.valor;
+    tdValue.textContent = "R$ " + product.valor;
     tdStock.textContent = product.quantidadeEstoque;
     tdObs.textContent = product.observacao;
     tdDataCadastro.textContent = new Date(product.dataCadastro).toLocaleDateString();
